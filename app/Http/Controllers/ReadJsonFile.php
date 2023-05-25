@@ -122,7 +122,7 @@ class ReadJsonFile extends Controller
                         }
                     }
                     return $sum;
-
+                    break;
                 case 'MULTIPLY':
                     $multiply = 1;
                     foreach ($values as $value) {
@@ -135,7 +135,7 @@ class ReadJsonFile extends Controller
                         }
                     }
                     return $multiply;
-
+                    break;
                 case 'DIVIDE':
                         $validValues = $this->areValuesValid($values, $keyValueArray);
 
@@ -154,21 +154,21 @@ class ReadJsonFile extends Controller
                         } else {
                             return '#ERROR: Invalid value';
                         }
-
+                        break;
                 case 'GT':
                     $validValues = $this->areValuesValid($values, $keyValueArray);
                     if ($validValues) {
                         [$newValue1, $newValue2] = $validValues;
                         return $newValue1 > $newValue2 ? true : false;
                     }
-
+                    break;
                 case 'EQ':
                     $validValues = $this->areValuesValid($values, $keyValueArray);
                     if ($validValues) {
                         [$newValue1, $newValue2] = $validValues;
                         return $newValue1 === $newValue2 ? true : false;
                     }
-
+                    break;
                 case 'NOT':
                     if (count($values) === 1) {
                         $value = $values[0];
@@ -178,7 +178,7 @@ class ReadJsonFile extends Controller
                             return !$newValue;
                         }
                     }
-
+                    break;
                 case 'AND':
                     $result = array_reduce($values, function ($previous, $current) use ($keyValueArray) {
                         $value = $this->evaluateCellValue('=' . $current, $keyValueArray);
@@ -190,7 +190,7 @@ class ReadJsonFile extends Controller
                     }, true);
 
                     return $result;
-
+                    break;
                 case 'OR':
                     $result = array_reduce($values, function ($previous, $current) use ($keyValueArray) {
                         $value = $this->evaluateCellValue('=' . $current, $keyValueArray);
@@ -203,7 +203,7 @@ class ReadJsonFile extends Controller
                     }, false);
 
                     return $result;
-
+                    break;
                 case "IF":
                     $pattern = '/(IF\(|[A-Z]+\([^)]+\)|[A-Z0-9]+)/';
                     preg_match_all($pattern, $expression, $matches);
@@ -219,7 +219,7 @@ class ReadJsonFile extends Controller
                     } else {
                         return '#ERROR: Invalid condition';
                     }
-
+                    break;
                 case 'CONCAT':
                     $pattern = '/[A-Z]+\d+|\"(.*?)\"/';
                     preg_match_all($pattern, $expression, $matches);
@@ -237,7 +237,7 @@ class ReadJsonFile extends Controller
                     }
 
                     return $concatenatedString;
-
+                    break;
                 default:
                     if (isset($keyValueArray[$operator])) {
                         return $keyValueArray[$operator];
