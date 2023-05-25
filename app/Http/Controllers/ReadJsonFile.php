@@ -5,12 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use PHPUnit\Framework\Constraint\Operator;
-
 use function PHPUnit\Framework\returnSelf;
 
 class ReadJsonFile extends Controller
 {
-
     public function index()
     {
         $content = File::get(base_path('public/jsonFile.json'));
@@ -123,6 +121,7 @@ class ReadJsonFile extends Controller
                     }
                     return $sum;
                     break;
+
                 case 'MULTIPLY':
                     $multiply = 1;
                     foreach ($values as $value) {
@@ -136,25 +135,25 @@ class ReadJsonFile extends Controller
                     }
                     return $multiply;
                     break;
+
                 case 'DIVIDE':
-                        $validValues = $this->areValuesValid($values, $keyValueArray);
-
-                        if ($validValues) {
-                            [$newValue1, $newValue2] = $validValues;
-
-                            if (is_numeric($newValue1) && is_numeric($newValue2)) {
-                                if (abs($newValue2) > 1e-7) {
-                                    return $newValue1 / $newValue2;
-                                } else {
-                                    return '#ERROR: Division by zero it\'s not allowed';
-                                }
+                    $validValues = $this->areValuesValid($values, $keyValueArray);
+                    if ($validValues) {
+                        [$newValue1, $newValue2] = $validValues;
+                        if (is_numeric($newValue1) && is_numeric($newValue2)) {
+                            if (abs($newValue2) > 1e-7) {
+                                return $newValue1 / $newValue2;
                             } else {
-                                return '#ERROR: Invalid or non-numeric value';
+                                return '#ERROR: Division by zero it\'s not allowed';
                             }
                         } else {
-                            return '#ERROR: Invalid value';
+                            return '#ERROR: Invalid or non-numeric value';
                         }
-                        break;
+                    } else {
+                        return '#ERROR: Invalid value';
+                    }
+                    break;
+
                 case 'GT':
                     $validValues = $this->areValuesValid($values, $keyValueArray);
                     if ($validValues) {
@@ -162,6 +161,7 @@ class ReadJsonFile extends Controller
                         return $newValue1 > $newValue2 ? true : false;
                     }
                     break;
+
                 case 'EQ':
                     $validValues = $this->areValuesValid($values, $keyValueArray);
                     if ($validValues) {
@@ -169,41 +169,40 @@ class ReadJsonFile extends Controller
                         return $newValue1 === $newValue2 ? true : false;
                     }
                     break;
+
                 case 'NOT':
                     if (count($values) === 1) {
                         $value = $values[0];
-
                         if (isset($keyValueArray[$value]) && is_bool($keyValueArray[$value])) {
                             $newValue = $keyValueArray[$value];
                             return !$newValue;
                         }
                     }
                     break;
+
                 case 'AND':
                     $result = array_reduce($values, function ($previous, $current) use ($keyValueArray) {
                         $value = $this->evaluateCellValue('=' . $current, $keyValueArray);
-
                         if (!is_bool($value) && is_numeric($value)) {
                             return '#ERROR: Incompatible types';
                         }
                         return $previous && $value;
                     }, true);
-
                     return $result;
                     break;
+
                 case 'OR':
                     $result = array_reduce($values, function ($previous, $current) use ($keyValueArray) {
                         $value = $this->evaluateCellValue('=' . $current, $keyValueArray);
-
                         if (!is_bool($value) && is_numeric($value)) {
                             return '#ERROR: Invalid value';
                         } else {
                             return $previous || (bool)$value;
                         }
                     }, false);
-
                     return $result;
                     break;
+
                 case "IF":
                     $pattern = '/(IF\(|[A-Z]+\([^)]+\)|[A-Z0-9]+)/';
                     preg_match_all($pattern, $expression, $matches);
@@ -220,11 +219,11 @@ class ReadJsonFile extends Controller
                         return '#ERROR: Invalid condition';
                     }
                     break;
+
                 case 'CONCAT':
                     $pattern = '/[A-Z]+\d+|\"(.*?)\"/';
                     preg_match_all($pattern, $expression, $matches);
                     $newExpressionArray = $matches[0];
-
                     $concatenatedString = '';
 
                     foreach ($newExpressionArray as $value) {
@@ -235,9 +234,9 @@ class ReadJsonFile extends Controller
                             $concatenatedString .= $value;
                         }
                     }
-
                     return $concatenatedString;
                     break;
+
                 default:
                     if (isset($keyValueArray[$operator])) {
                         return $keyValueArray[$operator];
